@@ -1,36 +1,126 @@
 package student_player;
 
+import java.util.ArrayList;
 import boardgame.Move;
 import tablut.TablutBoardState;
+import tablut.TablutMove;
 import tablut.TablutPlayer;
 
-/** A player file submitted by a student. */
 public class StudentPlayer extends TablutPlayer {
-
-    /**
-     * You must modify this constructor to return your student number. This is
-     * important, because this is what the code that runs the competition uses to
-     * associate you with your agent. The constructor should do nothing else.
-     */
-    public StudentPlayer() {
-        super("xxxxxxxxx");
+ 
+	static int search_depth = 3;
+	
+	public StudentPlayer() {
+        super("260512650");
     }
 
-    /**
-     * This is the primary method that you need to implement. The ``boardState``
-     * object contains the current state of the game, which your agent must use to
-     * make decisions.
-     */
-    public Move chooseMove(TablutBoardState boardState) {
-        // You probably will make separate functions in MyTools.
-        // For example, maybe you'll need to load some pre-processed best opening
-        // strategies...
-        MyTools.getSomething();
-
-        // Is random the best you can do?
-        Move myMove = boardState.getRandomMove();
-
-        // Return your move to be processed by the server.
-        return myMove;
+    public Move chooseMove(TablutBoardState board_state) {
+    	
+    	// Get table state variables
+    	int move_count = board_state.getTurnNumber();
+    	// Initialize default weights at first move
+        if (move_count == 0) WeightsInitializer.initialize();
+        
+        int side = board_state.getTurnPlayer();
+        
+        // Get all the legal moves from board state
+        ArrayList<TablutMove> legal_moves = board_state.getAllLegalMoves();
+        for (int i = 0; i < legal_moves.size(); i++) {
+        	
+        	if (legal_moves.get(i).getPlayerID() != side) {
+        		legal_moves.remove(i);
+        		i--; // Since elements are shifted down
+        	} 
+        }
+        
+        // Choose opening move
+    	if (side == 0 ) {
+        	
+        	if (move_count == 0) for (int j = 0; j < legal_moves.size(); j++) {
+        		//System.out.println("Searching Opener");
+        		if (		legal_moves.get(j).getStartPosition().x == 3 && legal_moves.get(j).getEndPosition().x == 3 &&
+        					legal_moves.get(j).getStartPosition().y == 0 && legal_moves.get(j).getEndPosition().y == 1) 
+        		{
+            		return legal_moves.get(j);
+        		}
+        	}
+        	else if (move_count == 1) for (int j = 0; j < legal_moves.size(); j++) {
+        		//System.out.println("Searching Opener");
+        		if (		legal_moves.get(j).getStartPosition().x == 5 && legal_moves.get(j).getEndPosition().x == 5 &&
+        					legal_moves.get(j).getStartPosition().y == 8 && legal_moves.get(j).getEndPosition().y == 7) 
+        		{
+            		return legal_moves.get(j);
+        		}
+        	}
+        	
+        }
+    	
+    	// In all other cases use alphaBeta pruning with weighted coordinates to determine best move
+        TablutMove best_move = legal_moves.get(MyTools.alphaBeta(board_state, side, search_depth, Integer.MIN_VALUE, Integer.MAX_VALUE, search_depth));
+        
+        return best_move;
+        
     }
+    
+    
+    
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
